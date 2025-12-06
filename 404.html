@@ -3,19 +3,32 @@
 <head>
   <meta charset="utf-8">
   <script type="text/javascript">
-    var segmentCount = 1;
+    // 检查是否是 Blazor 资源请求
+    var path = window.location.pathname;
+    var isBlazorResource = path.includes('/_framework/') ||
+            path.includes('/_content/') ||
+            path.endsWith('.js') ||
+            path.endsWith('.css') ||
+            path.endsWith('.wasm') ||
+            path.endsWith('.dll');
 
-    var l = window.location;
-    l.replace(
-            l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
-            l.pathname.split('/').slice(0, 1 + segmentCount).join('/') + '/?p=/' +
-            l.pathname.slice(1).split('/').slice(segmentCount).join('/').replace(/&/g, '~and~') +
-            (l.search ? '&q=' + l.search.slice(1).replace(/&/g, '~and~') : '') +
-            l.hash
-    );
-
+    if (!isBlazorResource && path !== '/' && !path.startsWith('/?')) {
+      var segmentCount = 1;
+      var l = window.location;
+      l.replace(
+              l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+              l.pathname.split('/').slice(0, 1 + segmentCount).join('/') + '/?p=/' +
+              l.pathname.slice(1).split('/').slice(segmentCount).join('/').replace(/&/g, '~and~') +
+              (l.search ? '&q=' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+              l.hash
+      );
+    }
   </script>
 </head>
 <body>
+<noscript>
+  <h1>404 - 页面未找到</h1>
+  <p>请启用 JavaScript 或返回 <a href="/">首页</a></p>
+</noscript>
 </body>
 </html>

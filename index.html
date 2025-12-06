@@ -30,31 +30,52 @@
     "./_framework/dotnet.runtime.o0qy896u8v.js": "sha256-yJvgPPUUvavYVmu9VD/fYtMcoEnLVaB0Cr7JAE29btw="
   }
 }</script>
-</head>
-<script>
-    // 处理从 404 页面传递的重定向
-    function handleRedirect() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const redirectPath = urlParams.get('redirect');
 
-        if (redirectPath) {
-            // 移除查询参数，避免重复
-            const newUrl = window.location.origin + redirectPath;
-            window.history.replaceState(null, '', redirectPath);
+    <script>
+        // 处理 hash 路由
+        function handleHashNavigation() {
+            const hash = window.location.hash;
 
-            // 对于 Blazor，你可能需要手动导航
-            if (typeof Blazor !== 'undefined') {
-                // 等待 Blazor 加载完成
-                setTimeout(() => {
-                    window.location.href = redirectPath;
-                }, 100);
+            if (hash && hash.startsWith('#/')) {
+                // 从 hash 中提取路径
+                const path = hash.substring(1); // 移除 #
+
+                // 更新浏览器的 URL（不刷新页面）
+                if (window.history.replaceState) {
+                    window.history.replaceState(null, null, path);
+                }
+
+                // 等待 Blazor 加载完成后触发导航
+                if (typeof Blazor !== 'undefined') {
+                    // Blazor 已经加载，直接触发导航
+                    const navigationManager = window.Blazor.navigationManager;
+                    if (navigationManager) {
+                        navigationManager.navigateTo(path, false);
+                    }
+                } else {
+                    // Blazor 还没加载，保存路径稍后处理
+                    sessionStorage.setItem('blazor-deeplink', path);
+
+                    // 监听 Blazor 加载完成
+                    document.addEventListener('Blazor:loaded', function() {
+                        const savedPath = sessionStorage.getItem('blazor-deeplink');
+                        if (savedPath) {
+                            const navigationManager = window.Blazor.navigationManager;
+                            if (navigationManager) {
+                                navigationManager.navigateTo(savedPath, false);
+                                sessionStorage.removeItem('blazor-deeplink');
+                            }
+                        }
+                    });
+                }
             }
         }
-    }
 
-    // 页面加载时执行
-    document.addEventListener('DOMContentLoaded', handleRedirect);
-</script>
+        // 页面加载时执行
+        document.addEventListener('DOMContentLoaded', handleHashNavigation);
+    </script>
+    
+</head>
 
 <body>
     <div id="app">

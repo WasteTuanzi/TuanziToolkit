@@ -2,21 +2,24 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>重定向中...</title>
+    <title>正在加载...</title>
     <script>
-        // 获取当前路径（不包括域名）
+        // 检查当前路径
         const path = window.location.pathname;
         const search = window.location.search;
         const hash = window.location.hash;
 
-        // 重定向到 index.html 并保持路径
-        const redirectUrl = '/index.html' + (path !== '/' ? '?redirect=' + encodeURIComponent(path + search + hash) : '');
-
-        // 立即重定向
-        window.location.replace(redirectUrl);
+        // 只处理非根路径且不是静态资源的请求
+        if (path !== '/' && !path.includes('.')) {
+            // 直接重定向到首页，路径作为 hash
+            window.location.replace('/#' + path + search + hash);
+        } else {
+            // 已经是根路径，直接去首页
+            window.location.replace('/');
+        }
     </script>
 </head>
 <body>
-<p>正在重定向到应用...</p>
+<p>加载应用中...</p>
 </body>
 </html>
